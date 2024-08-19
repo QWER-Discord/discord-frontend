@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
             DiscordfrontendTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android testing",
+                        name = "Android testing Github Testing",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
