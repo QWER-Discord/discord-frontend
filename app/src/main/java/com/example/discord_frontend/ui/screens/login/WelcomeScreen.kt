@@ -71,19 +71,19 @@ private fun WelcomeButtons(navController: NavController) {
         WelcomeButton(
             text = stringResource(R.string.sign_up),
             textColor = Color.White,
-            onClick = { /* TODO: Navigate to Sign Up */ },
+            onClick = { navController.navigate("signup")},
             containerColor = DiscordTheme.colors.primary
         )
         WelcomeButton(
             text = stringResource(R.string.log_in),
             textColor = Color.Black,
-            onClick = { /* TODO: Navigate to Log In */ },
+            onClick = { navController.navigate("login") },
             containerColor = DiscordTheme.colors.secondary
         )
         WelcomeButton(
             text = stringResource(R.string.continue_with_github),
             textColor = Color.Black,
-            onClick = { /* TODO: Implement Github login */ },
+            onClick = { navController.navigate("loginViaGithub") },
             containerColor = DiscordTheme.colors.secondary
         )
     }

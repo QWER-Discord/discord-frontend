@@ -4,6 +4,7 @@ package com.example.discord_frontend.navigation
 sealed class Screen(val route: String, val label: String) {
     object Welcome : Screen("welcome", "Welcome")
     object Login : Screen("login", "Login")
+    object LoginViaGithub : Screen("loginViaGithub", "LoginViaGithub")
     object SignUp : Screen("signup", "Sign Up")
     object ServerList : Screen("serverList", "Server List")
     object ChannelList : Screen("channelList/{serverId}", "Channel List")

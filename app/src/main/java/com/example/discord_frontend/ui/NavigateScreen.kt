@@ -1,6 +1,7 @@
 package com.example.discord_frontend.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -9,7 +10,8 @@ import com.example.discord_frontend.ui.screens.login.LoginScreen
 import com.example.discord_frontend.ui.screens.login.SignUpScreen
 import com.example.discord_frontend.ui.screens.login.WelcomeScreen
 
-// MainActivity에서 호출하는 함수.
+// 여기서 경로를 관장. 시작 경로를 startDestination 으로 지정.
+@Preview
 @Composable
 fun NavigateScreen() {
     val navController = rememberNavController()
