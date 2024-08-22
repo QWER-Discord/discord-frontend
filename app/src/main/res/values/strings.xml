@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">discord-frontend</string>
+    <string name="app_name">Discord_QWER</string>
+    <string name="welcome_logo_description">Welcome Logo</string>
+    <string name="welcome_title">DISCORD에 오신 걸\n환영합니다</string>
+    <string name="sign_up">Sign up</string>
+    <string name="log_in">Log In</string>
+    <string name="continue_with_github">Continue with Github</string>
 </resources>
