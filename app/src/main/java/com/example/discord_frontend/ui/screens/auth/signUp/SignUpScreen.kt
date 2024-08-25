@@ -17,7 +17,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.discord_frontend.R
-import com.example.discord_frontend.ui.components.NextButton
+import com.example.discord_frontend.ui.components.*
 import com.example.discord_frontend.ui.theme.AppTypography
 import com.example.discord_frontend.ui.theme.DiscordTheme
 
@@ -43,46 +43,60 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
                     .padding(horizontal = 20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(70.dp))
+                Spacer(modifier = Modifier.height(60.dp))
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    if (uiState.currentStep != SignUpStep.CONTACT_INFO) {
+                        BackButton(
+                            onClick = viewModel::onBackClicked,
+                            modifier = Modifier
+                                .align(Alignment.CenterStart)
+                                .padding(top = 20.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(40.dp))
                 SignUpTitle(uiState.currentStep)
 
                 Spacer(modifier = Modifier.height(30.dp))
 
-                // Step에 따라 실제 컴포저블을 렌더링
-                when (uiState.currentStep) {
-                    SignUpStep.CONTACT_INFO -> ContactInfoStep(uiState, viewModel)
-                    SignUpStep.USERNAME -> UsernameStep(uiState, viewModel)
-                    SignUpStep.PASSWORD -> PasswordStep(uiState, viewModel)
-                    SignUpStep.BIRTHDATE -> BirthdateStep(uiState, viewModel)
-                    SignUpStep.COMPLETED -> {}
-                }
+                // 단계별 컨텐츠를 별도의 컴포저블로 분리
+                SignUpContent(uiState, viewModel)
 
-                Spacer(modifier = Modifier.height(30.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    if (uiState.currentStep != SignUpStep.CONTACT_INFO) {
-                        BackButton(onClick = viewModel::onBackClicked)
-                    }
-                    NextButton(
-                        text = if (uiState.currentStep == SignUpStep.BIRTHDATE) stringResource(R.string.submit) else stringResource(R.string.next),
-                        onClick = {
-                            if (uiState.currentStep == SignUpStep.BIRTHDATE) {
-                                viewModel.onSubmit()
-                                navController.navigate("main_screen")
-                            } else {
-                                viewModel.onNextClicked()
-                            }
-                        },
-                        enabled = uiState.isNextEnabled
-                    )
-                }
+                Spacer(modifier = Modifier.height(20.dp))
+
+                NextButton(
+                    text = if (uiState.currentStep == SignUpStep.BIRTHDATE) stringResource(R.string.submit) else stringResource(R.string.next),
+                    onClick = {
+                        if (uiState.currentStep == SignUpStep.BIRTHDATE) {
+                            viewModel.onSubmit()
+                            navController.navigate("main_screen")
+                        } else {
+                            viewModel.onNextClicked()
+                        }
+                    },
+                    enabled = uiState.isNextEnabled,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                )
             }
         }
     }
 }
 
+
+@Composable
+fun SignUpContent(uiState: SignUpUiState, viewModel: SignUpViewModel) {
+    when (uiState.currentStep) {
+        SignUpStep.CONTACT_INFO -> ContactInfoStep(uiState, viewModel)
+        SignUpStep.USERNAME -> UsernameStep(uiState, viewModel)
+        SignUpStep.PASSWORD -> PasswordStep(uiState, viewModel)
+        SignUpStep.BIRTHDATE -> BirthdateStep(uiState, viewModel)
+        SignUpStep.COMPLETED -> {}
+    }
+}
 
 @Composable
 fun ContactInfoStep(uiState: SignUpUiState, viewModel: SignUpViewModel) {
@@ -260,7 +274,7 @@ private fun InputForm(
             unfocusedLabelColor = DiscordTheme.colors.unSelectedTextColor.copy(alpha = 0.7f),
             cursorColor = DiscordTheme.colors.selectedTextColor,
         ),
-        textStyle = AppTypography.bodyMedium.copy(color = DiscordTheme.colors.selectedTextColor)
+        textStyle = AppTypography.bodyMedium.copy(color = DiscordTheme.colors.textPrimary)
     )
 }
 
@@ -274,8 +288,10 @@ private fun PrivacyPolicyLink() {
 }
 
 @Composable
-private fun BackButton(onClick: () -> Unit) {
-    TextButton(onClick = onClick) {
-        Text(text = stringResource(R.string.back))
-    }
+fun BackButton(onClick: () -> Unit, modifier: Modifier) {
+    ImageButton(
+        imageResId = R.drawable.back_arrow,
+        onClick = onClick,
+        contentDescription = "Back"
+    )
 }

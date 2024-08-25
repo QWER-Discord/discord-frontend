@@ -21,10 +21,10 @@ data class DiscordColors(
     val primary: Color = Color(0xFF231E58),
     val secondary: Color = Color(0xF2FFFFFF),
     val backgroundOverlay: Color = Color(0x33000000),
-    val textPrimary: Color = Color(0xFFFFFFFF),
     val textSecondary: Color = Color(0xFF15104D),
 
     /* form text colors */
+    val textPrimary: Color = Color.Black,
     val selectedTextColor: Color = Color(0xFF4F46E5),
     val unSelectedTextColor: Color = Color(0xFF8885AC),
     val outlinedTextFieldColors: Color = Color(0xFF8885AC)
