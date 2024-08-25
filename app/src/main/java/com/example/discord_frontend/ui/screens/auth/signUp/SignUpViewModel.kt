@@ -6,17 +6,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
-// UI 관련 데이터 저장 및 관리, 비즈니스 로직 처리
 class SignUpViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(SignUpUiState())
     val uiState: StateFlow<SignUpUiState> = _uiState
 
     fun onOptionSelected(option: SignUpOption) {
         _uiState.update { it.copy(selectedOption = option, inputValue = "") }
+        updateNextButtonState()
     }
 
     fun onInputValueChange(value: String) {
-        _uiState.update { it.copy(inputValue = value, isNextEnabled = value.isNotBlank()) }
+        _uiState.update { it.copy(inputValue = value) }
+        updateNextButtonState()
     }
 
     fun onNextClicked() {
@@ -55,6 +56,13 @@ class SignUpViewModel : ViewModel() {
     private fun moveToNextStep() {
         _uiState.update { currentState ->
             currentState.copy(
+                currentStep = when (currentState.currentStep) {
+                    SignUpStep.CONTACT_INFO -> SignUpStep.USERNAME
+                    SignUpStep.USERNAME -> SignUpStep.PASSWORD
+                    SignUpStep.PASSWORD -> SignUpStep.BIRTHDATE
+                    SignUpStep.BIRTHDATE -> SignUpStep.COMPLETED
+                    SignUpStep.COMPLETED -> SignUpStep.COMPLETED
+                },
                 inputValue = "",
                 isNextEnabled = false
             )
@@ -62,99 +70,72 @@ class SignUpViewModel : ViewModel() {
     }
 
     fun onPhoneNumberChange(phoneNumber: String) {
-        _uiState.update {
-            it.copy(
-                phoneNumber = phoneNumber,
-                inputValue = phoneNumber,
-                isNextEnabled = phoneNumber.isNotBlank()
-            )
-        }
+        _uiState.update { it.copy(phoneNumber = phoneNumber) }
     }
 
     fun onEmailChange(email: String) {
-        _uiState.update {
-            it.copy(
-                email = email,
-                inputValue = email,
-                isNextEnabled = email.isNotBlank() && email.contains("@")
-            )
-        }
+        _uiState.update { it.copy(email = email) }
     }
 
     fun onUsernameChange(username: String) {
-        _uiState.update {
-            it.copy(
-                username = username,
-                inputValue = username,
-                isNextEnabled = username.length >= 3
-            )
-        }
+        _uiState.update { it.copy(username = username) }
     }
 
     fun onPasswordChange(password: String) {
-        _uiState.update {
-            it.copy(
-                password = password,
-                inputValue = password,
-                isNextEnabled = password.length >= 8
-            )
-        }
+        _uiState.update { it.copy(password = password) }
     }
 
     fun onBirthdateChange(birthdate: String) {
-        _uiState.update {
-            it.copy(
-                birthdate = birthdate,
-                inputValue = birthdate,
-                isNextEnabled = isValidBirthdate(birthdate)
-            )
-        }
+        _uiState.update { it.copy(birthdate = birthdate) }
     }
 
     private fun isValidBirthdate(birthdate: String): Boolean {
-        // 간단한 유효성 검사 예시. 실제 구현에서는 더 복잡한 로직이 필요할 수 있습니다.
         return birthdate.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))
     }
 
     fun onBackClicked() {
         _uiState.update { currentState ->
             when (currentState.currentStep) {
-                SignUpStep.CONTACT_INFO -> currentState // 첫 단계에서는 뒤로 갈 수 없음
+                SignUpStep.CONTACT_INFO -> currentState // First step, can't go back
                 SignUpStep.USERNAME -> currentState.copy(
+                    currentStep = SignUpStep.CONTACT_INFO,
                     email = "",
                     phoneNumber = "",
-                    inputValue = "" // CONTACT_INFO 단계의 입력값 초기화
+                    inputValue = ""
                 )
                 SignUpStep.PASSWORD -> currentState.copy(
+                    currentStep = SignUpStep.USERNAME,
                     username = "",
-                    inputValue = "" // USERNAME 단계의 입력값 초기화
+                    inputValue = ""
                 )
                 SignUpStep.BIRTHDATE -> currentState.copy(
+                    currentStep = SignUpStep.PASSWORD,
                     password = "",
-                    inputValue = "" // PASSWORD 단계의 입력값 초기화
+                    inputValue = ""
                 )
                 SignUpStep.COMPLETED -> currentState.copy(
+                    currentStep = SignUpStep.BIRTHDATE,
                     birthdate = "",
-                    inputValue = "" // BIRTHDATE 단계의 입력값 초기화
+                    inputValue = ""
                 )
             }
         }
         updateNextButtonState()
     }
 
-    private fun updateNextButtonState() {
+    fun updateNextButtonState() {
         val isEnabled = when (_uiState.value.currentStep) {
             SignUpStep.CONTACT_INFO -> {
                 if (_uiState.value.selectedOption == SignUpOption.PHONE) {
-                    _uiState.value.phoneNumber.isNotBlank()
+                    _uiState.value.inputValue.isNotBlank()
                 } else {
-                    _uiState.value.email.isNotBlank() && _uiState.value.email.contains("@")
+                    _uiState.value.inputValue.isNotBlank() && _uiState.value.inputValue.contains("@")
                 }
             }
-            SignUpStep.USERNAME -> _uiState.value.username.isNotBlank()
-            SignUpStep.PASSWORD -> _uiState.value.password.length >= 8
-            SignUpStep.BIRTHDATE -> _uiState.value.birthdate.isNotBlank()
-            SignUpStep.COMPLETED -> false // 완료 단계에서는 '다음' 버튼을 비활성화
+            SignUpStep.USERNAME -> _uiState.value.inputValue.length >= 3
+            SignUpStep.PASSWORD -> _uiState.value.inputValue.length >= 8
+            SignUpStep.BIRTHDATE -> isValidBirthdate(_uiState.value.inputValue)
+            SignUpStep.COMPLETED -> false // Disable 'Next' button on the completed step
         }
         _uiState.update { it.copy(isNextEnabled = isEnabled) }
     }
@@ -168,17 +149,9 @@ data class SignUpUiState(
     val password: String = "",
     val birthdate: String = "",
     val phoneNumber: String = "",
-    val isNextEnabled: Boolean = false
-) {
-    val currentStep: SignUpStep
-        get() = when {
-            email.isEmpty() && phoneNumber.isEmpty() -> SignUpStep.CONTACT_INFO
-            username.isEmpty() -> SignUpStep.USERNAME
-            password.isEmpty() -> SignUpStep.PASSWORD
-            birthdate.isEmpty() -> SignUpStep.BIRTHDATE
-            else -> SignUpStep.COMPLETED
-        }
-}
+    val isNextEnabled: Boolean = false,
+    val currentStep: SignUpStep = SignUpStep.CONTACT_INFO
+)
 
 enum class SignUpOption(val textResId: Int, val hintResId: Int) {
     PHONE(R.string.phone, R.string.enter_phone),
