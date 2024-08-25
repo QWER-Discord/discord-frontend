@@ -1,23 +1,18 @@
-package com.example.discord_frontend.ui.screens.login
+package com.example.discord_frontend.ui.screens.auth.signUp
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -25,12 +20,6 @@ import com.example.discord_frontend.R
 import com.example.discord_frontend.ui.components.NextButton
 import com.example.discord_frontend.ui.theme.AppTypography
 import com.example.discord_frontend.ui.theme.DiscordTheme
-import androidx.compose.runtime.*
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.text.input.KeyboardType
-import com.hbb20.CountryCodePicker
-
-
 
 @Preview(showBackground = true)
 @Composable
@@ -52,47 +41,105 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 20.dp),
-                horizontalAlignment     = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(70.dp))
-                SignUpTitle()
+                SignUpTitle(uiState.currentStep)
 
                 Spacer(modifier = Modifier.height(30.dp))
-                SignUpSelector(
-                    selectedOption = uiState.selectedOption,
-                    onOptionSelected = viewModel::onOptionSelected,
-                    modifier = Modifier.fillMaxWidth()
-                )
 
-                Spacer(modifier = Modifier.height(10.dp))
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    if (uiState.selectedOption == SignUpOption.PHONE) {
-                        PhoneInputWithCCP(
-                            phoneNumber = uiState.inputValue,
-                            onPhoneNumberChange = viewModel::onInputValueChange
-                        )
-                    } else {
-                        InputForm(
-                            selectedOption = uiState.selectedOption,
-                            inputValue = uiState.inputValue,
-                            onInputValueChange = viewModel::onInputValueChange
-                        )
-                    }
-                    PrivacyPolicyLink()
+                // Step에 따라 실제 컴포저블을 렌더링
+                when (uiState.currentStep) {
+                    SignUpStep.CONTACT_INFO -> ContactInfoStep(uiState, viewModel)
+                    SignUpStep.USERNAME -> UsernameStep(uiState, viewModel)
+                    SignUpStep.PASSWORD -> PasswordStep(uiState, viewModel)
+                    SignUpStep.BIRTHDATE -> BirthdateStep(uiState, viewModel)
+                    SignUpStep.COMPLETED -> {}
                 }
 
                 Spacer(modifier = Modifier.height(30.dp))
-                NextButton(
-                    text = stringResource(R.string.next),
-                    onClick = viewModel::onNextClicked,
-                    enabled = uiState.isNextEnabled
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    if (uiState.currentStep != SignUpStep.CONTACT_INFO) {
+                        BackButton(onClick = viewModel::onBackClicked)
+                    }
+                    NextButton(
+                        text = if (uiState.currentStep == SignUpStep.BIRTHDATE) stringResource(R.string.submit) else stringResource(R.string.next),
+                        onClick = {
+                            if (uiState.currentStep == SignUpStep.BIRTHDATE) {
+                                viewModel.onSubmit()
+                                navController.navigate("main_screen")
+                            } else {
+                                viewModel.onNextClicked()
+                            }
+                        },
+                        enabled = uiState.isNextEnabled
+                    )
+                }
             }
         }
     }
+}
+
+
+@Composable
+fun ContactInfoStep(uiState: SignUpUiState, viewModel: SignUpViewModel) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        SignUpSelector(
+            selectedOption = uiState.selectedOption,
+            onOptionSelected = viewModel::onOptionSelected,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        if (uiState.selectedOption == SignUpOption.PHONE) {
+            PhoneInputWithCCP(
+                phoneNumber = uiState.phoneNumber,
+                onPhoneNumberChange = viewModel::onPhoneNumberChange
+            )
+        } else {
+            InputForm(
+                value = uiState.email,
+                onValueChange = viewModel::onEmailChange,
+                label = stringResource(R.string.email),
+                keyboardType = KeyboardType.Email
+            )
+        }
+        PrivacyPolicyLink()
+    }
+}
+
+@Composable
+fun UsernameStep(uiState: SignUpUiState, viewModel: SignUpViewModel) {
+    InputForm(
+        value = uiState.username,
+        onValueChange = viewModel::onUsernameChange,
+        label = stringResource(R.string.username)
+    )
+}
+
+@Composable
+fun PasswordStep(uiState: SignUpUiState, viewModel: SignUpViewModel) {
+    InputForm(
+        value = uiState.password,
+        onValueChange = viewModel::onPasswordChange,
+        label = stringResource(R.string.password),
+        keyboardType = KeyboardType.Password
+    )
+}
+
+@Composable
+fun BirthdateStep(uiState: SignUpUiState, viewModel: SignUpViewModel) {
+    InputForm(
+        value = uiState.birthdate,
+        onValueChange = viewModel::onBirthdateChange,
+        label = stringResource(R.string.birthdate),
+        keyboardType = KeyboardType.Number
+    )
 }
 
 @Composable
@@ -101,7 +148,7 @@ fun PhoneInputWithCCP(
     onPhoneNumberChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var selectedCountryCode by remember { mutableStateOf("+82") } // 기본값으로 한국 국가 코드 설정
+    var selectedCountryCode by remember { mutableStateOf("+82") }
 
     Row(
         modifier = modifier
@@ -109,23 +156,8 @@ fun PhoneInputWithCCP(
             .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // CCP (Country Code Picker) - 일단 보류
-        /*
-        AndroidView(
-            factory = { context ->
-                CountryCodePicker(context).apply {
-                    setOnCountryChangeListener {
-                        selectedCountryCode = "+$phoneCode"
-                    }
-                    setDefaultCountryUsingNameCode("KR")
-                    setTextSize(16)
-                }
-            },
-            modifier = Modifier.weight(0.4f)
-        )
-        */
+        // CCP 구현은 보류 (추후 구현 예정)
 
-        // 전화번호 입력 필드
         OutlinedTextField(
             value = phoneNumber,
             onValueChange = onPhoneNumberChange,
@@ -158,7 +190,7 @@ private fun SignUpSelector(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center  // Center로 변경하여 옵션들을 더 가깝게 배치
+        horizontalArrangement = Arrangement.Center
     ) {
         SignUpOption.entries.forEach { option ->
             Column(
@@ -174,10 +206,9 @@ private fun SignUpSelector(
                     style = AppTypography.bodyMedium,
                     color = if (option == selectedOption) DiscordTheme.colors.selectedTextColor else DiscordTheme.colors.unSelectedTextColor
                 )
-                Spacer(modifier = Modifier.height(15.dp))  // 텍스트와 구분선 사이 간격 줄임
+                Spacer(modifier = Modifier.height(15.dp))
                 HorizontalDivider(
-                    modifier = Modifier
-                        .width(185.dp),  // 구분선 너비 줄임
+                    modifier = Modifier.width(185.dp),
                     thickness = 2.dp,
                     color = if (option == selectedOption) DiscordTheme.colors.selectedTextColor else DiscordTheme.colors.unSelectedTextColor
                 )
@@ -187,29 +218,36 @@ private fun SignUpSelector(
 }
 
 @Composable
-private fun SignUpTitle() {
+private fun SignUpTitle(currentStep: SignUpStep) {
+    val titleText = when (currentStep) {
+        SignUpStep.CONTACT_INFO -> stringResource(R.string.enter_phone_or_email)
+        SignUpStep.USERNAME -> stringResource(R.string.choose_username)
+        SignUpStep.PASSWORD -> stringResource(R.string.create_password)
+        SignUpStep.BIRTHDATE -> stringResource(R.string.enter_birthdate)
+        SignUpStep.COMPLETED -> TODO()
+    }
     Text(
-        text = stringResource(R.string.enter_phone_or_email),
+        text = titleText,
         style = AppTypography.titleLarge,
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onBackground
     )
 }
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun InputForm(
-    selectedOption: SignUpOption,
-    inputValue: String,
-    onInputValueChange: (String) -> Unit
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    keyboardType: KeyboardType = KeyboardType.Text
 ) {
     OutlinedTextField(
-        value = inputValue,
-        onValueChange = onInputValueChange,
-        label = { Text(stringResource(selectedOption.hintResId)) },
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         colors = OutlinedTextFieldDefaults.colors(
             focusedTextColor = DiscordTheme.colors.selectedTextColor,
             unfocusedTextColor = DiscordTheme.colors.unSelectedTextColor.copy(alpha = 0.9f),
@@ -233,4 +271,11 @@ private fun PrivacyPolicyLink() {
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
     )
+}
+
+@Composable
+private fun BackButton(onClick: () -> Unit) {
+    TextButton(onClick = onClick) {
+        Text(text = stringResource(R.string.back))
+    }
 }

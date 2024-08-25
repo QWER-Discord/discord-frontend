@@ -53,7 +53,7 @@ fun NextButton(
         shape = RoundedCornerShape(100.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .height(49.dp)
+            .height(40.dp)
             .background(color = Color(0xFF5865F2), shape = RoundedCornerShape(size = 5.dp))
     ) {
         Text(

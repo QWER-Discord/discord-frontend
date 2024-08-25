@@ -6,9 +6,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.discord_frontend.navigation.Screen
-import com.example.discord_frontend.ui.screens.login.LoginScreen
-import com.example.discord_frontend.ui.screens.login.SignUpScreen
-import com.example.discord_frontend.ui.screens.login.WelcomeScreen
+import com.example.discord_frontend.ui.screens.auth.login.LoginScreen
+import com.example.discord_frontend.ui.screens.auth.signUp.SignUpScreen
+import com.example.discord_frontend.ui.screens.auth.WelcomeScreen
 
 // 여기서 경로를 관장. 시작 경로를 startDestination 으로 지정.
 @Preview

@@ -1,4 +1,4 @@
-package com.example.discord_frontend.ui.screens.login
+package com.example.discord_frontend.ui.screens.auth.login
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
