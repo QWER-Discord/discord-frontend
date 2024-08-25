@@ -16,5 +16,6 @@
     <string name="enter_email">이메일</string>
     <string name="privacy_policy_link">Discord 개인정보 보호 정책 보기</string>
     <string name="next">다음</string>
+    <string name="phone_number">전화번호</string>
 
 </resources>

@@ -2,10 +2,12 @@ package com.example.discord_frontend.ui.screens.login
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -13,14 +15,29 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.discord_frontend.R
 import com.example.discord_frontend.ui.components.NextButton
 import com.example.discord_frontend.ui.theme.AppTypography
 import com.example.discord_frontend.ui.theme.DiscordTheme
+import androidx.compose.runtime.*
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.text.input.KeyboardType
+import com.hbb20.CountryCodePicker
+
+
+
+@Preview(showBackground = true)
+@Composable
+fun SignUpScreenPreview() {
+    val navController = rememberNavController()
+    SignUpScreen(navController = navController)
+}
 
 @Composable
 fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = viewModel()) {
@@ -35,7 +52,7 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment     = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(70.dp))
                 SignUpTitle()
@@ -52,13 +69,21 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    InputForm(
-                        selectedOption = uiState.selectedOption,
-                        inputValue = uiState.inputValue,
-                        onInputValueChange = viewModel::onInputValueChange
-                    )
+                    if (uiState.selectedOption == SignUpOption.PHONE) {
+                        PhoneInputWithCCP(
+                            phoneNumber = uiState.inputValue,
+                            onPhoneNumberChange = viewModel::onInputValueChange
+                        )
+                    } else {
+                        InputForm(
+                            selectedOption = uiState.selectedOption,
+                            inputValue = uiState.inputValue,
+                            onInputValueChange = viewModel::onInputValueChange
+                        )
+                    }
                     PrivacyPolicyLink()
                 }
+
                 Spacer(modifier = Modifier.height(30.dp))
                 NextButton(
                     text = stringResource(R.string.next),
@@ -67,6 +92,61 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
                 )
             }
         }
+    }
+}
+
+@Composable
+fun PhoneInputWithCCP(
+    phoneNumber: String,
+    onPhoneNumberChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var selectedCountryCode by remember { mutableStateOf("+82") } // 기본값으로 한국 국가 코드 설정
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // CCP (Country Code Picker) - 일단 보류
+        /*
+        AndroidView(
+            factory = { context ->
+                CountryCodePicker(context).apply {
+                    setOnCountryChangeListener {
+                        selectedCountryCode = "+$phoneCode"
+                    }
+                    setDefaultCountryUsingNameCode("KR")
+                    setTextSize(16)
+                }
+            },
+            modifier = Modifier.weight(0.4f)
+        )
+        */
+
+        // 전화번호 입력 필드
+        OutlinedTextField(
+            value = phoneNumber,
+            onValueChange = onPhoneNumberChange,
+            label = { Text(stringResource(R.string.phone_number)) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            modifier = Modifier.weight(0.6f),
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = DiscordTheme.colors.selectedTextColor,
+                unfocusedTextColor = DiscordTheme.colors.unSelectedTextColor.copy(alpha = 0.9f),
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                disabledContainerColor = DiscordTheme.colors.unSelectedTextColor.copy(alpha = 0.1f),
+                focusedBorderColor = DiscordTheme.colors.selectedTextColor,
+                unfocusedBorderColor = DiscordTheme.colors.unSelectedTextColor.copy(alpha = 0.5f),
+                focusedLabelColor = DiscordTheme.colors.selectedTextColor,
+                unfocusedLabelColor = DiscordTheme.colors.unSelectedTextColor.copy(alpha = 0.7f),
+                cursorColor = DiscordTheme.colors.selectedTextColor,
+            ),
+            textStyle = AppTypography.bodyMedium.copy(color = DiscordTheme.colors.selectedTextColor)
+        )
     }
 }
 

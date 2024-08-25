@@ -35,3 +35,4 @@ fun ScreenContent(screenName: String, navController: NavHostController) {
         }
     }
 }
+
