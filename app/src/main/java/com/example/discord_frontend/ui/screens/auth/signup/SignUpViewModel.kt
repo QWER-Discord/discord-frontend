@@ -1,6 +1,7 @@
 package com.example.discord_frontend.ui.screens.auth.signup
 
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
 import com.example.discord_frontend.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -96,7 +97,9 @@ class SignUpViewModel : ViewModel() {
     fun onBackClicked() {
         _uiState.update { currentState ->
             when (currentState.currentStep) {
-                SignUpStep.CONTACT_INFO -> currentState // First step, can't go back
+                SignUpStep.CONTACT_INFO -> currentState.copy(
+                    navigateToWelcome = true
+                )
                 SignUpStep.USERNAME -> currentState.copy(
                     currentStep = SignUpStep.CONTACT_INFO,
                     email = "",
@@ -121,6 +124,10 @@ class SignUpViewModel : ViewModel() {
             }
         }
         updateNextButtonState()
+    }
+
+    fun onNavigatedToWelcome() {
+        _uiState.update { it.copy(navigateToWelcome = false) }
     }
 
     fun updateNextButtonState() {
@@ -150,7 +157,8 @@ data class SignUpUiState(
     val birthdate: String = "",
     val phoneNumber: String = "",
     val isNextEnabled: Boolean = false,
-    val currentStep: SignUpStep = SignUpStep.CONTACT_INFO
+    val currentStep: SignUpStep = SignUpStep.CONTACT_INFO,
+    val navigateToWelcome: Boolean = false
 )
 
 enum class SignUpOption(val textResId: Int, val hintResId: Int) {

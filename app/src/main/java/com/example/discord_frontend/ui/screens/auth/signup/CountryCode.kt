@@ -9,15 +9,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.discord_frontend.R
 import com.example.discord_frontend.ui.theme.DiscordTheme
 import com.example.discord_frontend.ui.components.*
@@ -80,8 +77,12 @@ open class CountryCodeViewModel : ViewModel() {
         }
     }
 
-    fun onBackClicked() {
-        TODO()
+    private val _selectedCountryCode = MutableStateFlow<CountryCode?>(null)
+    val selectedCountryCode: StateFlow<CountryCode?> = _selectedCountryCode
+
+    // 국가 코드 선택 함수 추가
+    fun selectCountryCode(countryCode: CountryCode) {
+        _selectedCountryCode.value = countryCode
     }
 }
 
@@ -105,21 +106,23 @@ fun CountryCodeSelectionScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .padding(horizontal = 10.dp),
     ) {
         Spacer(modifier = Modifier.padding(top = 13.dp))
 
         // 뒤로가기 버튼
-        Box(modifier = Modifier.fillMaxWidth()) {
-            BackButton(
-                onClick = viewModel::onBackClicked,
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-            )
-        }
+        TopBackButton(
+            onBackClick = {
+                // 선택된 국가 코드가 있으면 결과로 전달하고, 없으면 그냥 뒤로 가기
+                val selectedCountryCode = viewModel.selectedCountryCode.value
+                if (selectedCountryCode != null) {
+                    onCountrySelected(selectedCountryCode)
+                }
+                navController.popBackStack()
+            },
+            modifier = Modifier.padding(start = 5.dp)
 
-        /*  검색 필드
-        Textfield 내에 기본 여백 존재하는 관계로 내부 여백은 조절 불가
-         */
+        )
         TextField(
             value = searchQuery,
             onValueChange = {
@@ -129,16 +132,16 @@ fun CountryCodeSelectionScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)
-                .background(DiscordTheme.colors.inputFieldBackground),
+                .background(DiscordTheme.colors.unselectedFieldBackground),
             placeholder = {
                 Text(
                     text = stringResource(R.string.search_hint),
                     fontSize = DiscordTheme.typography.searchBar.fontSize,
                 ) },
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.LightGray,
-                unfocusedContainerColor = DiscordTheme.colors.inputFieldBackground,
-                disabledContainerColor = DiscordTheme.colors.inputFieldBackground,
+                focusedContainerColor = DiscordTheme.colors.unselectedFieldBackground,
+                unfocusedContainerColor = DiscordTheme.colors.unselectedFieldBackground,
+                disabledContainerColor = DiscordTheme.colors.unselectedFieldBackground,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
             ),
@@ -149,12 +152,18 @@ fun CountryCodeSelectionScreen(
         LazyColumn {
             items(viewModel.getFilteredCountries()) { country ->
                 CountryCodeItem(country) {
-                    onCountrySelected(country)
+                    // CountryCode 객체를 문자열로 변환하여 저장
+                    val countryCodeString = "${country.name}|${country.code}"
+                    navController.previousBackStackEntry?.savedStateHandle?.set("selectedCountryCode", countryCodeString)
+                    navController.popBackStack()
                 }
-                HorizontalDivider(thickness = 0.5.dp, color = Color.LightGray,
+                HorizontalDivider(
+                    thickness = 0.5.dp,
+                    color = Color.LightGray,
                     modifier = Modifier.padding(start = 10.dp)
                 )
             }
+
         }
     }
 }
@@ -180,28 +189,4 @@ fun CountryCodeItem(country: CountryCode, onItemClick: () -> Unit) {
             textAlign = TextAlign.End
         )
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CountryCodeSelectionScreenPreview() {
-    val previewViewModel = object : CountryCodeViewModel() {
-        init {
-            viewModelScope.launch {
-                _countries.value = listOf(
-                    CountryCode("+82", "대한민국"),
-                    CountryCode("+1", "미국"),
-                    CountryCode("+81", "일본"),
-                    CountryCode("+86", "중국"),
-                    CountryCode("+44", "영국")
-                )
-            }
-        }
-    }
-
-    CountryCodeSelectionScreen(
-        viewModel = previewViewModel,
-        onCountrySelected = { /* Preview에서는 아무 동작 하지 않음 */ },
-        navController = NavController(LocalContext.current)
-    )
 }

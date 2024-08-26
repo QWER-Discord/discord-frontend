@@ -2,8 +2,10 @@ package com.example.discord_frontend.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -15,10 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.discord_frontend.R
 import com.example.discord_frontend.ui.theme.DiscordTheme
-import kotlin.reflect.KFunction1
 
 
 @Composable
@@ -98,6 +98,21 @@ fun BackButton(modifier: Modifier, onClick: () -> Unit) {
         onClick = onClick,
         contentDescription = "Back"
     )
+}
+
+@Composable
+fun TopBackButton(onBackClick: () -> Unit, modifier: Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 50.dp)
+    ) {
+        ImageButton(
+            imageResId = R.drawable.back_arrow,
+            onClick = onBackClick,
+            contentDescription = "Back"
+        )
+    }
 }
 
 

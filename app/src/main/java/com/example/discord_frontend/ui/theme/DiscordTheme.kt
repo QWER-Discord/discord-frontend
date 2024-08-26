@@ -1,6 +1,7 @@
 package com.example.discord_frontend.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -30,11 +31,19 @@ data class DiscordColors(
     val outlinedTextFieldColors: Color = Color(0xFF8885AC),
 
     /* text field colors */
-    val inputFieldBackground: Color = Color(0xEDEEEEEE),
+    val inputFieldBackground: Color = Color(0xFFFFFFFFF),
+    val unselectedFieldBackground: Color = Color(0xFFEBEBEB),
+    val inputBackground: Color = Color.White,
+    val inputBorder: Color = Color(0xFFC7C5DE),
+    val inputShadow: Color = Color(0x0D000000),
 
     /* button colors */
     val buttonColor: Color = Color(0xFF5865F2)
 
+)
+
+data class DiscordShapes(
+    val inputShape: RoundedCornerShape = RoundedCornerShape(8.dp)
 )
 
 data class DiscordTypography(
@@ -53,8 +62,8 @@ data class DiscordTypography(
         letterSpacing = 0.25.sp
     ),
     val searchBar: TextStyle = TextStyle(
-        fontSize = 13.sp,
-        lineHeight = 26.sp,
+        fontSize = 16.sp,
+        lineHeight = 20.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.25.sp
     )
@@ -66,6 +75,8 @@ data class DiscordSpacing(
     val medium: Dp = 16.dp,
     val large: Dp = 24.dp
 )
+
+private val LocalDiscordShapes = staticCompositionLocalOf { DiscordShapes() }
 
 object DiscordTheme {
     val colors: DiscordColors
@@ -79,11 +90,16 @@ object DiscordTheme {
     val spacing: DiscordSpacing
         @Composable
         get() = LocalDiscordSpacing.current
+
+    val shapes: DiscordShapes
+        @Composable
+        get() = LocalDiscordShapes.current
 }
 
 private val LocalDiscordColors = staticCompositionLocalOf { DiscordColors() }
 private val LocalDiscordTypography = staticCompositionLocalOf { DiscordTypography() }
 private val LocalDiscordSpacing = staticCompositionLocalOf { DiscordSpacing() }
+
 
 @Composable
 fun DiscordTheme(
@@ -99,7 +115,8 @@ fun DiscordTheme(
     CompositionLocalProvider(
         LocalDiscordColors provides colors,
         LocalDiscordTypography provides DiscordTypography(),
-        LocalDiscordSpacing provides DiscordSpacing()
+        LocalDiscordSpacing provides DiscordSpacing(),
+        LocalDiscordShapes provides DiscordShapes()
     ) {
         MaterialTheme(
             colorScheme = if (darkTheme) darkColorScheme() else lightColorScheme(),

@@ -26,5 +26,6 @@
     <string name="password">비밀번호</string>
     <string name="birthdate">생년월일</string>
     <string name="search_hint">검색하기</string>
+    <string name="signup_completed">완료</string>
 
 </resources>
