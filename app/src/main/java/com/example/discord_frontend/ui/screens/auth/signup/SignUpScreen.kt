@@ -1,4 +1,4 @@
-package com.example.discord_frontend.ui.screens.auth.signUp
+package com.example.discord_frontend.ui.screens.auth.signup
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
@@ -40,29 +40,28 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = 15.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(60.dp))
+                Spacer(modifier = Modifier.height(15.dp))
 
                 Box(modifier = Modifier.fillMaxWidth()) {
-                    if (uiState.currentStep != SignUpStep.CONTACT_INFO) {
-                        BackButton(
-                            onClick = viewModel::onBackClicked,
-                            modifier = Modifier
-                                .align(Alignment.CenterStart)
-                                .padding(top = 20.dp)
-                        )
-                    }
+                    BackButton(
+                        onClick = viewModel::onBackClicked,
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(40.dp))
-                SignUpTitle(uiState.currentStep)
 
                 Spacer(modifier = Modifier.height(30.dp))
 
+                // 메인 텍스트
+                SignUpTitle(uiState.currentStep)
+
+                Spacer(modifier = Modifier.height(35.dp))
+
                 // 단계별 컨텐츠를 별도의 컴포저블로 분리
-                SignUpContent(uiState, viewModel)
+                SignUpContent(uiState, viewModel, navController)
 
                 Spacer(modifier = Modifier.height(20.dp))
 
@@ -88,9 +87,9 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
 
 
 @Composable
-fun SignUpContent(uiState: SignUpUiState, viewModel: SignUpViewModel) {
+fun SignUpContent(uiState: SignUpUiState, viewModel: SignUpViewModel, navController: NavController) {
     when (uiState.currentStep) {
-        SignUpStep.CONTACT_INFO -> ContactInfoStep(uiState, viewModel)
+        SignUpStep.CONTACT_INFO -> ContactInfoStep(uiState, viewModel, navController)
         SignUpStep.USERNAME -> UsernameStep(uiState, viewModel)
         SignUpStep.PASSWORD -> PasswordStep(uiState, viewModel)
         SignUpStep.BIRTHDATE -> BirthdateStep(uiState, viewModel)
@@ -99,7 +98,7 @@ fun SignUpContent(uiState: SignUpUiState, viewModel: SignUpViewModel) {
 }
 
 @Composable
-fun ContactInfoStep(uiState: SignUpUiState, viewModel: SignUpViewModel) {
+fun ContactInfoStep(uiState: SignUpUiState, viewModel: SignUpViewModel, navController: NavController) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -113,7 +112,8 @@ fun ContactInfoStep(uiState: SignUpUiState, viewModel: SignUpViewModel) {
         if (uiState.selectedOption == SignUpOption.PHONE) {
             PhoneInputWithCCP(
                 phoneNumber = uiState.phoneNumber,
-                onPhoneNumberChange = viewModel::onPhoneNumberChange
+                onPhoneNumberChange = viewModel::onPhoneNumberChange,
+                navController = navController
             )
         } else {
             InputForm(
@@ -160,17 +160,21 @@ fun BirthdateStep(uiState: SignUpUiState, viewModel: SignUpViewModel) {
 fun PhoneInputWithCCP(
     phoneNumber: String,
     onPhoneNumberChange: (String) -> Unit,
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    var selectedCountryCode by remember { mutableStateOf("+82") }
+    var selectedCountryCode: String by remember { mutableStateOf("+82") }
 
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // CCP 구현은 보류 (추후 구현 예정)
+        Button(
+            onClick = { navController.navigate("CountryCodePicker") },
+            modifier = Modifier.weight(0.4f)
+        ) {
+            Text(selectedCountryCode)
+        }
 
         OutlinedTextField(
             value = phoneNumber,
@@ -287,11 +291,3 @@ private fun PrivacyPolicyLink() {
     )
 }
 
-@Composable
-fun BackButton(onClick: () -> Unit, modifier: Modifier) {
-    ImageButton(
-        imageResId = R.drawable.back_arrow,
-        onClick = onClick,
-        contentDescription = "Back"
-    )
-}

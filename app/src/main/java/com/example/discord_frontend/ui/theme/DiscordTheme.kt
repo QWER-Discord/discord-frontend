@@ -27,7 +27,14 @@ data class DiscordColors(
     val textPrimary: Color = Color.Black,
     val selectedTextColor: Color = Color(0xFF4F46E5),
     val unSelectedTextColor: Color = Color(0xFF8885AC),
-    val outlinedTextFieldColors: Color = Color(0xFF8885AC)
+    val outlinedTextFieldColors: Color = Color(0xFF8885AC),
+
+    /* text field colors */
+    val inputFieldBackground: Color = Color(0xEDEEEEEE),
+
+    /* button colors */
+    val buttonColor: Color = Color(0xFF5865F2)
+
 )
 
 data class DiscordTypography(
@@ -42,6 +49,12 @@ data class DiscordTypography(
     val button: TextStyle = TextStyle(
         fontSize = 16.sp,
         lineHeight = 21.sp,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 0.25.sp
+    ),
+    val searchBar: TextStyle = TextStyle(
+        fontSize = 13.sp,
+        lineHeight = 26.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.25.sp
     )

@@ -7,10 +7,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.discord_frontend.navigation.Screen
 import com.example.discord_frontend.ui.screens.auth.login.LoginScreen
-import com.example.discord_frontend.ui.screens.auth.signUp.SignUpScreen
 import com.example.discord_frontend.ui.screens.auth.WelcomeScreen
+import com.example.discord_frontend.ui.screens.auth.signup.CountryCodePicker
+import com.example.discord_frontend.ui.screens.auth.signup.SignUpScreen
 
-// 여기서 경로를 관장. 시작 경로를 startDestination 으로 지정.
+// 여기서 경로를 관리. 시작 경로를 startDestination 으로 지정.
 @Preview
 @Composable
 fun NavigateScreen() {
@@ -19,12 +20,20 @@ fun NavigateScreen() {
         composable(Screen.Welcome.route) {
             WelcomeScreen(navController)
         }
+
+        /* 로그인 루트 */
         composable(Screen.Login.route) {
             LoginScreen(navController)
         }
+
+        /* 회원가입 루트 */
         composable(Screen.SignUp.route) {
             SignUpScreen(navController)
         }
+        composable(Screen.CountryCodePicker.route) {
+            CountryCodePicker(navController)
+        }
+
         composable(Screen.ServerList.route) {
             ScreenContent(Screen.ServerList.label, navController)
         }

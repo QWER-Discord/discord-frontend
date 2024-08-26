@@ -1,4 +1,4 @@
-package com.example.discord_frontend.ui.screens.auth.signUp
+package com.example.discord_frontend.ui.screens.auth.signup
 
 import androidx.lifecycle.ViewModel
 import com.example.discord_frontend.R

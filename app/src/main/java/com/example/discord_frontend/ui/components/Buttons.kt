@@ -15,8 +15,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.discord_frontend.R
 import com.example.discord_frontend.ui.theme.DiscordTheme
-import com.example.discord_frontend.ui.theme.*
+import kotlin.reflect.KFunction1
+
+
+@Composable
+fun ImageButton(
+    imageResId: Int,
+    onClick: () -> Unit,
+    contentDescription: String?,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Image(
+            painter = painterResource(id = imageResId),
+            contentDescription = contentDescription,
+            modifier = Modifier.size(24.dp)
+        )
+    }
+}
 
 
 @Composable
@@ -53,7 +75,7 @@ fun NextButton(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            buttonColor
+            DiscordTheme.colors.buttonColor,
         ),
         shape = RoundedCornerShape(100.dp),
         modifier = Modifier
@@ -70,21 +92,12 @@ fun NextButton(
 }
 
 @Composable
-fun ImageButton(
-    imageResId: Int,
-    onClick: () -> Unit,
-    contentDescription: String?,
-    modifier: Modifier = Modifier
-) {
-    IconButton(
+fun BackButton(modifier: Modifier, onClick: () -> Unit) {
+    ImageButton(
+        imageResId = R.drawable.back_arrow,
         onClick = onClick,
-        modifier = modifier
-    ) {
-        Image(
-            painter = painterResource(id = imageResId),
-            contentDescription = contentDescription,
-            modifier = Modifier.size(24.dp)
-        )
-    }
+        contentDescription = "Back"
+    )
 }
+
 
