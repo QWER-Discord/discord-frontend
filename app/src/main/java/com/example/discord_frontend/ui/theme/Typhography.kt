@@ -43,7 +43,13 @@ val AppTypography = Typography(
         fontFamily = InterFont,
         fontWeight = FontWeight.Normal,
         letterSpacing = 0.25.sp
+    ),
+    labelSmall = TextStyle(
+        fontSize = 10.sp,
+        lineHeight = 15.sp,
+        fontFamily = InterFont,
+        fontWeight = FontWeight.Normal,
+        letterSpacing = 0.25.sp
     )
-
     // 다른 스타일들도 여기에 정의할 수 있습니다.
 )

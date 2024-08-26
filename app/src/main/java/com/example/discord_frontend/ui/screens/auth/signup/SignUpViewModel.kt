@@ -1,7 +1,6 @@
 package com.example.discord_frontend.ui.screens.auth.signup
 
 import androidx.lifecycle.ViewModel
-import androidx.navigation.NavController
 import com.example.discord_frontend.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,11 +31,16 @@ class SignUpViewModel : ViewModel() {
                 }
                 moveToNextStep()
             }
+            SignUpStep.VERIFICATION -> {
+                // Here you would typically verify the code
+                // For now, we'll just move to the next step
+                moveToNextStep()
+            }
             SignUpStep.USERNAME -> {
                 onUsernameChange(currentState.inputValue)
                 moveToNextStep()
             }
-            SignUpStep.PASSWORD -> {
+            SignUpStep.ACCOUNT_CREATE -> {
                 onPasswordChange(currentState.inputValue)
                 moveToNextStep()
             }
@@ -58,9 +62,10 @@ class SignUpViewModel : ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(
                 currentStep = when (currentState.currentStep) {
-                    SignUpStep.CONTACT_INFO -> SignUpStep.USERNAME
-                    SignUpStep.USERNAME -> SignUpStep.PASSWORD
-                    SignUpStep.PASSWORD -> SignUpStep.BIRTHDATE
+                    SignUpStep.CONTACT_INFO -> SignUpStep.VERIFICATION
+                    SignUpStep.VERIFICATION -> SignUpStep.USERNAME
+                    SignUpStep.USERNAME -> SignUpStep.ACCOUNT_CREATE
+                    SignUpStep.ACCOUNT_CREATE -> SignUpStep.BIRTHDATE
                     SignUpStep.BIRTHDATE -> SignUpStep.COMPLETED
                     SignUpStep.COMPLETED -> SignUpStep.COMPLETED
                 },
@@ -90,8 +95,17 @@ class SignUpViewModel : ViewModel() {
         _uiState.update { it.copy(birthdate = birthdate) }
     }
 
+    fun onVerificationCodeChange(code: String) {
+        _uiState.update { it.copy(verificationCode = code) }
+    }
+
     private fun isValidBirthdate(birthdate: String): Boolean {
         return birthdate.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))
+    }
+
+    private fun isValidVerificationCode(code: String): Boolean {
+        // This is a simple check. In a real app, you'd want more robust validation.
+        return code.length == 6 && code.all { it.isDigit() }
     }
 
     fun onBackClicked() {
@@ -100,19 +114,23 @@ class SignUpViewModel : ViewModel() {
                 SignUpStep.CONTACT_INFO -> currentState.copy(
                     navigateToWelcome = true
                 )
-                SignUpStep.USERNAME -> currentState.copy(
+                SignUpStep.VERIFICATION -> currentState.copy(
                     currentStep = SignUpStep.CONTACT_INFO,
-                    email = "",
-                    phoneNumber = "",
+                    verificationCode = "",
                     inputValue = ""
                 )
-                SignUpStep.PASSWORD -> currentState.copy(
+                SignUpStep.USERNAME -> currentState.copy(
+                    currentStep = SignUpStep.VERIFICATION,
+                    verificationCode = "",
+                    inputValue = ""
+                )
+                SignUpStep.ACCOUNT_CREATE -> currentState.copy(
                     currentStep = SignUpStep.USERNAME,
                     username = "",
                     inputValue = ""
                 )
                 SignUpStep.BIRTHDATE -> currentState.copy(
-                    currentStep = SignUpStep.PASSWORD,
+                    currentStep = SignUpStep.ACCOUNT_CREATE,
                     password = "",
                     inputValue = ""
                 )
@@ -139,8 +157,9 @@ class SignUpViewModel : ViewModel() {
                     _uiState.value.inputValue.isNotBlank() && _uiState.value.inputValue.contains("@")
                 }
             }
+            SignUpStep.VERIFICATION -> isValidVerificationCode(_uiState.value.inputValue)
             SignUpStep.USERNAME -> _uiState.value.inputValue.length >= 3
-            SignUpStep.PASSWORD -> _uiState.value.inputValue.length >= 8
+            SignUpStep.ACCOUNT_CREATE -> _uiState.value.inputValue.length >= 8
             SignUpStep.BIRTHDATE -> isValidBirthdate(_uiState.value.inputValue)
             SignUpStep.COMPLETED -> false // Disable 'Next' button on the completed step
         }
@@ -156,6 +175,7 @@ data class SignUpUiState(
     val password: String = "",
     val birthdate: String = "",
     val phoneNumber: String = "",
+    val verificationCode: String = "",
     val isNextEnabled: Boolean = false,
     val currentStep: SignUpStep = SignUpStep.CONTACT_INFO,
     val navigateToWelcome: Boolean = false
@@ -168,8 +188,9 @@ enum class SignUpOption(val textResId: Int, val hintResId: Int) {
 
 enum class SignUpStep {
     CONTACT_INFO,
+    VERIFICATION,
     USERNAME,
-    PASSWORD,
+    ACCOUNT_CREATE,
     BIRTHDATE,
     COMPLETED
 }

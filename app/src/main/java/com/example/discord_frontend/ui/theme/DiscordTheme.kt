@@ -38,9 +38,12 @@ data class DiscordColors(
     val inputShadow: Color = Color(0x0D000000),
 
     /* button colors */
-    val buttonColor: Color = Color(0xFF5865F2)
+    val buttonColor: Color = Color(0xFF5865F2),
 
-)
+    /* text colors */
+    val subtitleText: Color = Color(0xFF636363),
+
+    )
 
 data class DiscordShapes(
     val inputShape: RoundedCornerShape = RoundedCornerShape(8.dp)
@@ -66,15 +69,30 @@ data class DiscordTypography(
         lineHeight = 20.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.25.sp
-    )
+    ),
+    val subtitleText: TextStyle = TextStyle(
+        fontSize = 12.sp,
+        lineHeight = 20.sp,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 0.25.sp
+    ),
 )
 
+data class DiscordBorder(
+    val width: Dp = 1.dp,
+    val color: Color = Color.Gray.copy(0.35f),
+    val shape: RoundedCornerShape = RoundedCornerShape(8.dp)
+)
 
 data class DiscordSpacing(
     val small: Dp = 8.dp,
     val medium: Dp = 16.dp,
     val large: Dp = 24.dp
 )
+
+val shapes: DiscordShapes
+    @Composable
+    get() = LocalDiscordShapes.current
 
 private val LocalDiscordShapes = staticCompositionLocalOf { DiscordShapes() }
 
@@ -91,6 +109,10 @@ object DiscordTheme {
         @Composable
         get() = LocalDiscordSpacing.current
 
+    val border: DiscordBorder
+        @Composable
+        get() = LocalDiscordBorder.current
+
     val shapes: DiscordShapes
         @Composable
         get() = LocalDiscordShapes.current
@@ -99,29 +121,22 @@ object DiscordTheme {
 private val LocalDiscordColors = staticCompositionLocalOf { DiscordColors() }
 private val LocalDiscordTypography = staticCompositionLocalOf { DiscordTypography() }
 private val LocalDiscordSpacing = staticCompositionLocalOf { DiscordSpacing() }
-
+private val LocalDiscordBorder = staticCompositionLocalOf { DiscordBorder() }
 
 @Composable
 fun DiscordTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    colors: DiscordColors = DiscordColors(),
+    typography: DiscordTypography = DiscordTypography(),
+    spacing: DiscordSpacing = DiscordSpacing(),
+    border: DiscordBorder = DiscordBorder(),
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) {
-        DiscordColors()  // You can create a separate dark theme color set if needed
-    } else {
-        DiscordColors()
-    }
-
     CompositionLocalProvider(
         LocalDiscordColors provides colors,
-        LocalDiscordTypography provides DiscordTypography(),
-        LocalDiscordSpacing provides DiscordSpacing(),
-        LocalDiscordShapes provides DiscordShapes()
+        LocalDiscordTypography provides typography,
+        LocalDiscordSpacing provides spacing,
+        LocalDiscordBorder provides border
     ) {
-        MaterialTheme(
-            colorScheme = if (darkTheme) darkColorScheme() else lightColorScheme(),
-            typography = AppTypography,
-            content = content
-        )
+        content()
     }
 }
