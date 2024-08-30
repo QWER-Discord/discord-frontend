@@ -67,8 +67,8 @@ fun SignUpScreen(navController: NavController, viewModel: SignUpViewModel = view
 
     LaunchedEffect(uiState.navigateToWelcome) {
         if (uiState.navigateToWelcome) {
-            navController.navigate(Screen.Welcome.route) {
-                popUpTo(Screen.Welcome.route) { inclusive = true }
+            navController.navigate(Screen.Auth.Welcome.route) {
+                popUpTo(Screen.Auth.Welcome.route) { inclusive = true }
             }
             viewModel.onNavigatedToWelcome()
         }

@@ -57,7 +57,8 @@ private fun WelcomeTitle() {
     Text(
         text = stringResource(R.string.welcome_title),
         style = DiscordTheme.typography.h1,
-        modifier = Modifier.padding(DiscordTheme.spacing.medium)
+        modifier = Modifier
+            .padding(DiscordTheme.spacing.medium)
     )
 }
 
